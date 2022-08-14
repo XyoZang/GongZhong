@@ -111,7 +111,7 @@ if __name__ == "__main__":
                   "color": "#87CEEB"
                 },
             "birthday": {
-                  "value": get_birthday() + "1",
+                  "value": get_birthday() + 1,
                   "color": "#FF8000"
                 },
             "note_en": {
