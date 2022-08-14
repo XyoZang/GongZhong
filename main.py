@@ -62,7 +62,7 @@ def get_birthday():
   next = datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
   if next < datetime.now():
     next = next.replace(year=next.year + 1)
-  return (next - today + datetime.timedelta(days=1)).days
+  return (next - today).days
 
 def get_ciba():
     url = "http://open.iciba.com/dsapi/"
@@ -111,7 +111,7 @@ if __name__ == "__main__":
                   "color": "#87CEEB"
                 },
             "birthday": {
-                  "value": get_birthday(),
+                  "value": get_birthday() + "1",
                   "color": "#FF8000"
                 },
             "note_en": {
