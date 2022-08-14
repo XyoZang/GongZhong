@@ -190,7 +190,7 @@ if __name__ == "__main__":
     client = WeChatClient(app_id, app_secret)
 
     wm = WeChatMessage(client)
-    wea, temp, tempn = get_weather()
+    wea, temp, tempn = get_weather(province, city)
     week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
     week = week_list[today.isoweekday() % 7]
     note_ch, note_en = get_ciba()
