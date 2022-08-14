@@ -85,14 +85,13 @@ if __name__ == "__main__":
     week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
     week = week_list[today.isoweekday() % 7]
     note_ch, note_en = get_ciba()
-    city_name = cityinfo.cityInfo[province][city]["city"]
     data = {
             "date": {
                     "value": "{} {}".format(today.strftime('%Y-%m-%d'), week),
                     "color": "#00FFFF"
                     },
             "city": {
-                    "value": city_name,
+                    "value": city,
                     "color": "#808A87"
                 },
             "weather": {
