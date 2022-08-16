@@ -124,6 +124,7 @@ if __name__ == "__main__":
                     "color": "#173177"
                 },
             }
-    res = wm.send_template(user_id, template_id, data)
+    res = wm.send_template(user_id1, template_id, data)
+    res = wm.send_template(user_id2, template_id, data)
     print(res)
     os.system("pause")
