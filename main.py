@@ -22,7 +22,12 @@ app_secret = os.environ["APP_SECRET"]
 
 user_id1 = os.environ["USER_ID1"]
 user_id2 = os.environ["USER_ID2"]
-template_id = os.environ["TEMPLATE_ID"]
+template_id1 = os.environ["TEMPLATE_ID1"]
+template_id2 = os.environ["TEMPLATE_ID2"]
+
+last_JQ = os.environ['LAST_JQ']
+end_JQ = os.environ['END_JQ']
+next_JQ = os.environ['NEXT_JQ']
 
 def get_weather(province, city):
     # 城市id
@@ -65,6 +70,10 @@ def get_birthday():
     next = next.replace(year=next.year + 1)
   return (next - today).days
 
+def JQ_count():
+  Days_left = Next_JQ - today
+  return Days_left.days
+
 def get_ciba():
     url = "http://open.iciba.com/dsapi/"
     headers = {
@@ -86,7 +95,7 @@ if __name__ == "__main__":
     week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
     week = week_list[today.isoweekday() % 7]
     note_ch, note_en = get_ciba()
-    data = {
+    morning_data = {
             "date": {
                     "value": "{} {}".format(today.strftime('%Y-%m-%d'), week),
                     "color": "#00FFFF"
@@ -124,7 +133,29 @@ if __name__ == "__main__":
                     "color": "#173177"
                 },
             }
-    res = wm.send_template(user_id1, template_id, data)
-    res = wm.send_template(user_id2, template_id, data)
+    res = wm.send_template(user_id1, template_id1, morning_data)
+    # res = wm.send_template(user_id2, template_id1, morning_data)
     print(res)
+    Last_JQ = datetime.strptime(last_JQ, "%Y-%m-%d")
+    End_JQ = datetime.strptime(end_JQ, "%Y-%m-%d")
+    Next_JQ = datetime.strptime(next_JQ, "%Y-%m-%d")
+    JQ_data = {
+      "last_JQ":{
+                "value": Last_JQ,
+                "color": "#ED9121"
+                },
+      "end_JQ":{
+              "value": End_JQ,
+              "color": "#808A87"
+              },
+      "next_JQ":{
+                "value": Next_JQ,
+                "color": "#FF6100",
+                },
+      "days_left":{
+                  "value": JQ_count(),
+                  "color": "#FF8000"
+      }
+    }
+    res = wm.send_template(user_id1, template_id2, JQ_data)
     os.system("pause")
