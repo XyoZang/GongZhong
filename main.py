@@ -91,8 +91,8 @@ def case_shanbay():
     result = {}
     record = requests.get(sb_url).json()
     result['date'] = today
-    word_en = record.json()["translation"]
-    word_ch = record.json()["content"]
+    word_en = record["translation"]
+    word_ch = record["content"]
     return word_en, word_ch
 
 if __name__ == "__main__":
