@@ -141,15 +141,15 @@ if __name__ == "__main__":
     Next_JQ = datetime.strptime(next_JQ, "%Y-%m-%d")
     JQ_data = {
       "last_JQ":{
-                "value": Last_JQ,
+                "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
                 },
       "end_JQ":{
-              "value": End_JQ,
+              "value": "{}".format(End_JQ.strftime('%Y-%m-%d')),
               "color": "#808A87"
               },
       "next_JQ":{
-                "value": Next_JQ,
+                "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
                 "color": "#FF6100",
                 },
       "days_left":{
