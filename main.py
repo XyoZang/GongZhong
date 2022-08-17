@@ -86,6 +86,15 @@ def get_ciba():
     note_ch = r.json()["note"]
     return note_ch, note_en
 
+def case_shanbay():
+    sb_url = "https://apiv3.shanbay.com/weapps/dailyquote/quote/?date=" + today
+    result = {}
+    record = requests.get(sb_url).json()
+    result['date'] = today
+    word_en = record.json()["translation"]
+    word_ch = record.json()["content"]
+    return word_en, word_ch
+
 if __name__ == "__main__":
 
     client = WeChatClient(app_id, app_secret)
@@ -139,6 +148,7 @@ if __name__ == "__main__":
     Last_JQ = datetime.strptime(last_JQ, "%Y-%m-%d")
     End_JQ = datetime.strptime(end_JQ, "%Y-%m-%d")
     Next_JQ = datetime.strptime(next_JQ, "%Y-%m-%d")
+    word_en, word_ch = case_shanbay()
     JQ_data = {
       "last_JQ":{
                 "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
@@ -155,7 +165,15 @@ if __name__ == "__main__":
       "days_left":{
                   "value": JQ_count(),
                   "color": "#FF8000"
-      }
+                  },
+      "word_EN":{
+                "value": word_en,
+                "color": "#173177"
+                },
+      "word_ch":{
+                    "value": word_ch,
+                    "color": "#173177"
+                }
     }
     res = wm.send_template(user_id1, template_id2, JQ_data)
     os.system("pause")
