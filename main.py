@@ -166,12 +166,12 @@ if __name__ == "__main__":
                   "value": JQ_count(),
                   "color": "#FF8000"
                   },
-      "word_en":{
-                "value": word_en,
+      "word_ch":{
+                "value": word_ch,
                 "color": "#173177"
                 },
-      "word_ch":{
-                    "value": word_ch,
+      "word_en":{
+                    "value": word_en,
                     "color": "#173177"
                 }
     }
