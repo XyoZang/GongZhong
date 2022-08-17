@@ -87,7 +87,7 @@ def get_ciba():
     return note_ch, note_en
 
 def case_shanbay():
-    sb_url = "https://apiv3.shanbay.com/weapps/dailyquote/quote/?date=" + today
+    sb_url = "https://apiv3.shanbay.com/weapps/dailyquote/quote/?date=" + str(today)
     result = {}
     record = requests.get(sb_url).json()
     result['date'] = today
