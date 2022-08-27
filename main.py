@@ -97,6 +97,18 @@ def case_shanbay():
     word_en = record["content"]
     return word_en, word_ch
 
+def get_status(predictday):
+    if predictday <= today <= pridictday + 7:
+        JQstatus = "经期中"
+        Corstatus = "#C70000"
+    elif predictday + 16 <= today <= predictday + 25:
+        JQstatus = "排卵期"
+        Corstatus = "#ECEC94"
+    else:
+        JQstatus = "安全期"
+        Corstatus = "#66F970"
+    return JQstatus, Corstatus
+
 if __name__ == "__main__":
 
     client = WeChatClient(app_id, app_secret)
@@ -154,7 +166,12 @@ if __name__ == "__main__":
     End_JQ = datetime.strptime(end_JQ, "%Y-%m-%d")
     Next_JQ = datetime.strptime(next_JQ, "%Y-%m-%d")
     word_en, word_ch = case_shanbay()
+    now_status, color_status = get_status(Next_JQ)
     JQ_data = {
+      "Now_Status":{
+                   "value": now_status,
+                   "color": color_status
+      }
       "last_JQ":{
                 "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
