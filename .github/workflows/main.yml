@@ -36,5 +36,3 @@ jobs:
       CITY: ${{ secrets.CITY }}
       PROVINCE: ${{ secrets.PROVINCE }}
       LAST_JQ: ${{ secrets.LAST_JQ }}
-      END_JQ: ${{ secrets.END_JQ }}
-      NEXT_JQ: ${{ secrets.NEXT_JQ }}
