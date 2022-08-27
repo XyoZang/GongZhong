@@ -13,7 +13,7 @@ import sys
 import os
 
 # ************参数设置*************
-debug = False
+debug = True
 jq_last = 6
 JQ_last = jq_last - 1
 JQ_cycle = 30
@@ -89,18 +89,18 @@ def get_birthday():
   next = datetime.datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
   if next < datetime.datetime.now():
     next = next.replace(year=next.year + 1)
-  return (next - today).days
+  return (next - today).days + 1
 
 # 经期来临倒计时
 def JQ_count():
   Days_left = Next_JQ - today
-  return Days_left.days
+  return Days_left.days + 1
 
 # 经期结束倒计时
 def End_count(Next_JQ):
     End_day = Next_JQ + datetime.timedelta(days=JQ_last)
     Days_left = End_day -today
-    return End_day, Days_left
+    return End_day, Days_left.days + 2
 
 # 排卵期计算
 def PL_count(Next_JQ):
@@ -188,7 +188,7 @@ if __name__ == "__main__":
                   "color": "#87CEEB"
                 },
             "birthday": {
-                  "value": get_birthday() + 1,
+                  "value": get_birthday(),
                   "color": "#FF8000"
                 },
             "note_en": {
@@ -302,7 +302,7 @@ if __name__ == "__main__":
                 "color": "#808A87"
                 },
             "days_left":{
-                "value": Days_left.days + 1,
+                "value": Days_left,
                 "color": "#FF8000"
                 },
             "word_en":{
