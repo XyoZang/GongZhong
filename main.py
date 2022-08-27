@@ -228,7 +228,7 @@ if __name__ == "__main__":
                 "color": "#FF8000"
                 },
             "PL_start":{
-                "value": PL_start,
+                "value": "{}".format(PL_start.strftime('%Y-%m-%d')),
                 "color": "#FF8000"
                 },
             "word_en":{
@@ -265,7 +265,7 @@ if __name__ == "__main__":
                 "color": "#FF8000"
                 },
             "PL_end":{
-                "value": PL_end,
+                "value": "{}".format(PL_end.strftime('%Y-%m-%d')),
                 "color": "#FF8000"
                 },
             "word_en":{
