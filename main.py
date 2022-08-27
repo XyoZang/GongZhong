@@ -41,10 +41,10 @@ last_JQ = os.environ['LAST_JQ']
 Last_JQ = datetime.datetime.strptime(last_JQ, "%Y-%m-%d")
 
 End_JQ = Last_JQ + datetime.timedelta(days=JQ_last)
-end_JQ = os.environ['END_JQ']
+end_JQ = End_JQ.strftime("%Y-%m-%d")
 
 Next_JQ = End_JQ + datetime.timedelta(days=JQ_cycle)
-next_JQ = Next_JQ.strftime("%Y-%m-%d)
+next_JQ = Next_JQ.strftime("%Y-%m-%d")
 
 # ***************早安提醒*******************
 def get_weather(province, city):
