@@ -13,6 +13,9 @@ import sys
 import os
 
 debug = True
+JQ_cycle = 7
+PL_pre = 10
+PL_last = 9
 
 today = datetime.datetime.now()
 start_date = os.environ['START_DATE']
@@ -77,6 +80,17 @@ def JQ_count():
   Days_left = Next_JQ - today
   return Days_left.days
 
+def End_count(next_JQ):
+    End_day = next_JQ + datetime.timedelta(days=JQ_cycle)
+    Days_left = End_day -today
+    return End_day, Days_left
+
+def PL_count(next_JQ):
+    End_day, Days_left = End_count(next_JQ)
+    PL_start = End_day + datetime.timedelta(days=PL_pre)
+    PL_end = PL_start + datetime.timedelta(days=PL_last)
+    return PL_start, PL_end
+
 def get_ciba():
     url = "http://open.iciba.com/dsapi/"
     headers = {
@@ -99,10 +113,12 @@ def case_shanbay():
     return word_en, word_ch
 
 def get_status(predictday):
-    if predictday <= today <= predictday + datetime.timedelta(days=7):
+    End_day, Days_left = End_count(next_JQ)
+    PL_start, PL_end = PL_count(next_JQ)
+    if predictday <= today <=End_day:
         JQstatus = "经期中"
         Corstatus = "#C70000"
-    elif predictday + datetime.timedelta(days=16) <= today <= predictday + datetime.timedelta(days=25):
+    elif PL_start <= today <= PL_end:
         JQstatus = "排卵期"
         Corstatus = "#ECEC94"
     else:
@@ -168,39 +184,112 @@ if __name__ == "__main__":
     Next_JQ = datetime.datetime.strptime(next_JQ, "%Y-%m-%d")
     word_en, word_ch = case_shanbay()
     now_status, color_status = get_status(Next_JQ)
-    JQ_data = {
-      "Now_Status":{
-                   "value": now_status,
-                   "color": color_status
-                 },
-      "last_JQ":{
+    if now_status == '安全期':
+        PL_start, PL_end = PL_count(next_JQ)
+        template_id = template_id2
+        JQ_data = {
+            "Now_Status":{
+                "value": now_status,
+                "color": color_status
+                },
+            "last_JQ":{
                 "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
                 },
-      "end_JQ":{
-              "value": "{}".format(End_JQ.strftime('%Y-%m-%d')),
-              "color": "#808A87"
-              },
-      "next_JQ":{
+            "end_JQ":{
+                "value": "{}".format(End_JQ.strftime('%Y-%m-%d')),
+                "color": "#808A87"
+                },
+            "next_JQ":{
                 "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
                 "color": "#FF6100",
                 },
-      "days_left":{
-                  "value": JQ_count(),
-                  "color": "#FF8000"
-                  },
-      "word_en":{
+            "days_left":{
+                "value": JQ_count(),
+                "color": "#FF8000"
+                },
+            "PL_start":{
+                "value": PL_start,
+                "color": "#FF8000"
+                },
+            "word_en":{
                 "value": word_en,
                 "color": "#173177"
                 },
-      "word_ch":{
-                    "value": word_ch,
-                    "color": "#173177"
+            "word_ch":{
+                "value": word_ch,
+                "color": "#173177"
                 }
-    }
+        }
+    if now_status == '排卵期':
+        PL_start, PL_end = PL_count(next_JQ)
+        template_id = template_id2
+        JQ_data = {
+            "Now_Status":{
+                "value": now_status,
+                "color": color_status
+                },
+            "last_JQ":{
+                "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
+                "color": "#ED9121"
+                },
+            "end_JQ":{
+                "value": "{}".format(End_JQ.strftime('%Y-%m-%d')),
+                "color": "#808A87"
+                },
+            "next_JQ":{
+                "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
+                "color": "#FF6100",
+                },
+            "days_left":{
+                "value": JQ_count(),
+                "color": "#FF8000"
+                },
+            "PL_end":{
+                "value": PL_end,
+                "color": "#FF8000"
+                },
+            "word_en":{
+                "value": word_en,
+                "color": "#173177"
+                },
+            "word_ch":{
+                "value": word_ch,
+                "color": "#173177"
+                }
+        }    
+    if now_status == '经期中':
+        template_id = template_id2
+        End_day, Days_left = End_count(next_JQ)
+        JQ_data = {
+            "Now_Status":{
+                "value": now_status,
+                "color": color_status
+                },
+            "next_JQ":{
+                "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
+                "color": "#ED9121"
+                },
+            "nextend_JQ":{
+                "value": "{}".format(End_day.strftime('%Y-%m-%d')),
+                "color": "#808A87"
+                },
+            "days_left":{
+                "value": Days_left.Days,
+                "color": "#FF8000"
+                },
+            "word_en":{
+                "value": word_en,
+                "color": "#173177"
+                },
+            "word_ch":{
+                "value": word_ch,
+                "color": "#173177"
+                }
+        }
     if debug == True:
-        res = wm.send_template(user_id1, template_id2, JQ_data)
+        res = wm.send_template(user_id1, template_id, JQ_data)
     else:
-        res = wm.send_template(user_id1, template_id2, JQ_data)
-        res = wm.send_template(user_id2, template_id2, JQ_data)
+        res = wm.send_template(user_id1, template_id, JQ_data)
+        res = wm.send_template(user_id2, template_id, JQ_data)
     os.system("pause")
