@@ -180,7 +180,7 @@ if __name__ == "__main__":
                     "color": "#173177"
                 }
     }
-    if debug == true
+    if debug == true:
         res = wm.send_template(user_id1, template_id2, JQ_data)
     else:
         res = wm.send_template(user_id1, template_id2, JQ_data)
