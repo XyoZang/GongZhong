@@ -302,7 +302,7 @@ if __name__ == "__main__":
                 "color": "#808A87"
                 },
             "days_left":{
-                "value": Days_left.days,
+                "value": Days_left.days + 1,
                 "color": "#FF8000"
                 },
             "word_en":{
