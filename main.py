@@ -14,8 +14,10 @@ import os
 
 # ************参数设置*************
 debug = True
-JQ_cycle = 33
-JQ_last = 7
+jq_cycle = 32
+jq_last = 6
+JQ_cycle = jq_cycle - 1
+JQ_last = jq_last - 1
 PL_pre = 10
 PL_last = 9
 
@@ -102,11 +104,18 @@ def End_count(Next_JQ):
     return End_day, Days_left
 
 # 排卵期计算
-def PL_count(next_JQ):
+def PL_count(Next_JQ):
     End_day, Days_left = End_count(Next_JQ)
     PL_start = End_day + datetime.timedelta(days=PL_pre)
     PL_end = PL_start + datetime.timedelta(days=PL_last)
     return PL_start, PL_end
+
+# 排卵期来临倒计时
+def PL_cng():
+    PL_start, PL_end = PL_count(Next_JQ)
+    PL_come =  PL_start - today
+    PL_go = PL_end -today
+    return PL_come.days, PL_go.days
 
 def get_ciba():
     url = "http://open.iciba.com/dsapi/"
@@ -203,8 +212,10 @@ if __name__ == "__main__":
 
     word_en, word_ch = case_shanbay()
     now_status, color_status = get_status(Next_JQ)
+    PL_come, PL_go = PL_cng()
+    PL_start, PL_end = PL_count(Next_JQ)
+    End_day, Days_left = End_count(Next_JQ)
     if now_status == '安全期':
-        PL_start, PL_end = PL_count(Next_JQ)
         template_id = template_id_aq
         JQ_data = {
             "Now_Status":{
@@ -228,7 +239,7 @@ if __name__ == "__main__":
                 "color": "#FF8000"
                 },
             "PL_start":{
-                "value": "{}".format(PL_start.strftime('%Y-%m-%d')),
+                "value": PL_come,
                 "color": "#FF8000"
                 },
             "word_en":{
@@ -241,7 +252,6 @@ if __name__ == "__main__":
                 }
         }
     if now_status == '排卵期':
-        PL_start, PL_end = PL_count(Next_JQ)
         template_id = template_id_pl
         JQ_data = {
             "Now_Status":{
@@ -265,7 +275,7 @@ if __name__ == "__main__":
                 "color": "#FF8000"
                 },
             "PL_end":{
-                "value": "{}".format(PL_end.strftime('%Y-%m-%d')),
+                "value": PL_go,
                 "color": "#FF8000"
                 },
             "word_en":{
@@ -279,7 +289,6 @@ if __name__ == "__main__":
         }    
     if now_status == '经期中':
         template_id = template_id_jq
-        End_day, Days_left = End_count(Next_JQ)
         JQ_data = {
             "Now_Status":{
                 "value": now_status,
