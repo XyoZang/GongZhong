@@ -15,7 +15,7 @@ import os
 # ************参数设置*************
 debug = True
 jq_cycle = 32
-jq_last = 6
+jq_last = 7
 JQ_cycle = jq_cycle - 1
 JQ_last = jq_last - 1
 PL_pre = 10
@@ -139,10 +139,10 @@ def case_shanbay():
     return word_en, word_ch
 
 # 经期状态判断
-def get_status(predictday):
+def get_status(Next_JQ):
     End_day, Days_left = End_count(Next_JQ)
     PL_start, PL_end = PL_count(Next_JQ)
-    if predictday <= today <=End_day:
+    if Next_JQ <= today <= End_day:
         JQstatus = "经期中"
         Corstatus = "#C70000"
     elif PL_start <= today <= PL_end:
