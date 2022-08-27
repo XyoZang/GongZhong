@@ -64,12 +64,12 @@ def get_weather(province, city):
     return weather, temp, tempn
 
 def get_count():
-  delta = today - datetime.strptime(start_date, "%Y-%m-%d")
+  delta = today - datetime.datetime.strptime(start_date, "%Y-%m-%d")
   return delta.days
 
 def get_birthday():
-  next = datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
-  if next < datetime.now():
+  next = datetime.datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
+  if next < datetime.datetime.now():
     next = next.replace(year=next.year + 1)
   return (next - today).days
 
@@ -164,9 +164,9 @@ if __name__ == "__main__":
         res = wm.send_template(user_id1, template_id1, morning_data)
         res = wm.send_template(user_id2, template_id1, morning_data)
     print(res)
-    Last_JQ = datetime.strptime(last_JQ, "%Y-%m-%d")
-    End_JQ = datetime.strptime(end_JQ, "%Y-%m-%d")
-    Next_JQ = datetime.strptime(next_JQ, "%Y-%m-%d")
+    Last_JQ = datetime.datetime.strptime(last_JQ, "%Y-%m-%d")
+    End_JQ = datetime.datetime.strptime(end_JQ, "%Y-%m-%d")
+    Next_JQ = datetime.datetime.strptime(next_JQ, "%Y-%m-%d")
     word_en, word_ch = case_shanbay()
     now_status, color_status = get_status(Next_JQ)
     JQ_data = {
