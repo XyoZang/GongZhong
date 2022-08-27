@@ -14,10 +14,9 @@ import os
 
 # ************参数设置*************
 debug = True
-jq_cycle = 32
 jq_last = 7
-JQ_cycle = jq_cycle - 1
 JQ_last = jq_last - 1
+JQ_cycle = 31
 PL_pre = 10
 PL_last = 9
 
