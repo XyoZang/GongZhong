@@ -183,7 +183,6 @@ if __name__ == "__main__":
         res = wm.send_template(user_id1, template_id1, morning_data)
         res = wm.send_template(user_id2, template_id1, morning_data)
     print(res)
-// *****************************************************************************************8
     word_en, word_ch = case_shanbay()
     now_status, color_status = get_status(Next_JQ)
     if now_status == '安全期':
