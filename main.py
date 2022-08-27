@@ -11,7 +11,7 @@ from requests import get, post
 import sys
 import os
 
-debug = true
+debug = True
 
 today = datetime.now()
 start_date = os.environ['START_DATE']
@@ -144,7 +144,7 @@ if __name__ == "__main__":
                     "color": "#173177"
                 },
             }
-    if debug == true:
+    if debug == True:
         res = wm.send_template(user_id1, template_id1, morning_data)
     else:
         res = wm.send_template(user_id1, template_id1, morning_data)
@@ -180,7 +180,7 @@ if __name__ == "__main__":
                     "color": "#173177"
                 }
     }
-    if debug == true:
+    if debug == True:
         res = wm.send_template(user_id1, template_id2, JQ_data)
     else:
         res = wm.send_template(user_id1, template_id2, JQ_data)
