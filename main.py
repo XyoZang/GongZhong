@@ -28,8 +28,9 @@ app_secret = os.environ["APP_SECRET"]
 
 user_id1 = os.environ["USER_ID1"]
 user_id2 = os.environ["USER_ID2"]
-template_id1 = os.environ["TEMPLATE_ID1"]
-template_id2 = os.environ["TEMPLATE_ID2"]
+template_id_aq = os.environ["TEMPLATE_ID_aq"]
+template_id_pl = os.environ["TEMPLATE_ID_pl"]
+template_id_jq = os.environ["TEMPLATE_ID_jq"]
 
 last_JQ = os.environ['LAST_JQ']
 end_JQ = os.environ['END_JQ']
@@ -187,7 +188,7 @@ if __name__ == "__main__":
     now_status, color_status = get_status(Next_JQ)
     if now_status == '安全期':
         PL_start, PL_end = PL_count(Next_JQ)
-        template_id = template_id2
+        template_id = template_id_aq
         JQ_data = {
             "Now_Status":{
                 "value": now_status,
@@ -224,7 +225,7 @@ if __name__ == "__main__":
         }
     if now_status == '排卵期':
         PL_start, PL_end = PL_count(Next_JQ)
-        template_id = template_id2
+        template_id = template_id_pl
         JQ_data = {
             "Now_Status":{
                 "value": now_status,
@@ -260,7 +261,7 @@ if __name__ == "__main__":
                 }
         }    
     if now_status == '经期中':
-        template_id = template_id2
+        template_id = template_id_jq
         End_day, Days_left = End_count(Next_JQ)
         JQ_data = {
             "Now_Status":{
