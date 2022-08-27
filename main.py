@@ -171,7 +171,7 @@ if __name__ == "__main__":
       "Now_Status":{
                    "value": now_status,
                    "color": color_status
-      }
+                 },
       "last_JQ":{
                 "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
