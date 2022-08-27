@@ -12,10 +12,14 @@ from requests import get, post
 import sys
 import os
 
+# ************参数设置*************
 debug = True
-JQ_cycle = 7
+JQ_cycle = 33
+JQ_last = 7
 PL_pre = 10
 PL_last = 9
+
+# ************变量定义*************
 
 today = datetime.datetime.now()
 start_date = os.environ['START_DATE']
@@ -34,13 +38,15 @@ template_id_pl = os.environ["TEMPLATE_ID_pl"]
 template_id_jq = os.environ["TEMPLATE_ID_jq"]
 
 last_JQ = os.environ['LAST_JQ']
-end_JQ = os.environ['END_JQ']
-next_JQ = os.environ['NEXT_JQ']
-
 Last_JQ = datetime.datetime.strptime(last_JQ, "%Y-%m-%d")
-End_JQ = datetime.datetime.strptime(end_JQ, "%Y-%m-%d")
-Next_JQ = datetime.datetime.strptime(next_JQ, "%Y-%m-%d")
 
+End_JQ = Last_JQ + datetime.timedelta(days=JQ_last)
+end_JQ = os.environ['END_JQ']
+
+Next_JQ = End_JQ + datetime.timedelta(days=JQ_cycle)
+next_JQ = Next_JQ.strftime("%Y-%m-%d)
+
+# ***************早安提醒*******************
 def get_weather(province, city):
     # 城市id
     try:
@@ -72,25 +78,30 @@ def get_weather(province, city):
     tempn = weatherinfo["tempn"]
     return weather, temp, tempn
 
+# 恋爱时长计算
 def get_count():
   delta = today - datetime.datetime.strptime(start_date, "%Y-%m-%d")
   return delta.days
 
+# 生日倒计时
 def get_birthday():
   next = datetime.datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
   if next < datetime.datetime.now():
     next = next.replace(year=next.year + 1)
   return (next - today).days
 
+# 经期来临倒计时
 def JQ_count():
   Days_left = Next_JQ - today
   return Days_left.days
 
+# 经期结束倒计时
 def End_count(Next_JQ):
-    End_day = Next_JQ + datetime.timedelta(days=JQ_cycle)
+    End_day = Next_JQ + datetime.timedelta(days=JQ_last)
     Days_left = End_day -today
     return End_day, Days_left
 
+# 排卵期计算
 def PL_count(next_JQ):
     End_day, Days_left = End_count(Next_JQ)
     PL_start = End_day + datetime.timedelta(days=PL_pre)
@@ -118,6 +129,7 @@ def case_shanbay():
     word_en = record["content"]
     return word_en, word_ch
 
+# 经期状态判断
 def get_status(predictday):
     End_day, Days_left = End_count(Next_JQ)
     PL_start, PL_end = PL_count(Next_JQ)
@@ -132,6 +144,7 @@ def get_status(predictday):
         Corstatus = "#66F970"
     return JQstatus, Corstatus
 
+# ****************主程序-早安提醒******************
 if __name__ == "__main__":
 
     client = WeChatClient(app_id, app_secret)
@@ -185,6 +198,9 @@ if __name__ == "__main__":
         res = wm.send_template(user_id1, template_id1, morning_data)
         res = wm.send_template(user_id2, template_id1, morning_data)
     print(res)
+
+# *******************经期提醒***********************
+
     word_en, word_ch = case_shanbay()
     now_status, color_status = get_status(Next_JQ)
     if now_status == '安全期':
