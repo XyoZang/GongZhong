@@ -14,7 +14,7 @@ import os
 
 debug = True
 
-today = datetime.now()
+today = datetime.datetime.now()
 start_date = os.environ['START_DATE']
 province = os.environ['PROVINCE']
 city = os.environ['CITY']
