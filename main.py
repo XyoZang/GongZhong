@@ -35,6 +35,10 @@ last_JQ = os.environ['LAST_JQ']
 end_JQ = os.environ['END_JQ']
 next_JQ = os.environ['NEXT_JQ']
 
+Last_JQ = datetime.datetime.strptime(last_JQ, "%Y-%m-%d")
+End_JQ = datetime.datetime.strptime(end_JQ, "%Y-%m-%d")
+Next_JQ = datetime.datetime.strptime(next_JQ, "%Y-%m-%d")
+
 def get_weather(province, city):
     # 城市id
     try:
@@ -80,13 +84,13 @@ def JQ_count():
   Days_left = Next_JQ - today
   return Days_left.days
 
-def End_count(next_JQ):
-    End_day = next_JQ + datetime.timedelta(days=JQ_cycle)
+def End_count(Next_JQ):
+    End_day = Next_JQ + datetime.timedelta(days=JQ_cycle)
     Days_left = End_day -today
     return End_day, Days_left
 
 def PL_count(next_JQ):
-    End_day, Days_left = End_count(next_JQ)
+    End_day, Days_left = End_count(Next_JQ)
     PL_start = End_day + datetime.timedelta(days=PL_pre)
     PL_end = PL_start + datetime.timedelta(days=PL_last)
     return PL_start, PL_end
@@ -113,8 +117,8 @@ def case_shanbay():
     return word_en, word_ch
 
 def get_status(predictday):
-    End_day, Days_left = End_count(next_JQ)
-    PL_start, PL_end = PL_count(next_JQ)
+    End_day, Days_left = End_count(Next_JQ)
+    PL_start, PL_end = PL_count(Next_JQ)
     if predictday <= today <=End_day:
         JQstatus = "经期中"
         Corstatus = "#C70000"
@@ -179,13 +183,11 @@ if __name__ == "__main__":
         res = wm.send_template(user_id1, template_id1, morning_data)
         res = wm.send_template(user_id2, template_id1, morning_data)
     print(res)
-    Last_JQ = datetime.datetime.strptime(last_JQ, "%Y-%m-%d")
-    End_JQ = datetime.datetime.strptime(end_JQ, "%Y-%m-%d")
-    Next_JQ = datetime.datetime.strptime(next_JQ, "%Y-%m-%d")
+// *****************************************************************************************8
     word_en, word_ch = case_shanbay()
     now_status, color_status = get_status(Next_JQ)
     if now_status == '安全期':
-        PL_start, PL_end = PL_count(next_JQ)
+        PL_start, PL_end = PL_count(Next_JQ)
         template_id = template_id2
         JQ_data = {
             "Now_Status":{
@@ -222,7 +224,7 @@ if __name__ == "__main__":
                 }
         }
     if now_status == '排卵期':
-        PL_start, PL_end = PL_count(next_JQ)
+        PL_start, PL_end = PL_count(Next_JQ)
         template_id = template_id2
         JQ_data = {
             "Now_Status":{
