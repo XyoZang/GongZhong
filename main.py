@@ -11,6 +11,8 @@ from requests import get, post
 import sys
 import os
 
+debug = true
+
 today = datetime.now()
 start_date = os.environ['START_DATE']
 province = os.environ['PROVINCE']
@@ -142,8 +144,11 @@ if __name__ == "__main__":
                     "color": "#173177"
                 },
             }
-    res = wm.send_template(user_id1, template_id1, morning_data)
-    res = wm.send_template(user_id2, template_id1, morning_data)
+    if debug = true:
+        res = wm.send_template(user_id1, template_id1, morning_data)
+    else:
+        res = wm.send_template(user_id1, template_id1, morning_data)
+        res = wm.send_template(user_id2, template_id1, morning_data)
     print(res)
     Last_JQ = datetime.strptime(last_JQ, "%Y-%m-%d")
     End_JQ = datetime.strptime(end_JQ, "%Y-%m-%d")
@@ -175,6 +180,9 @@ if __name__ == "__main__":
                     "color": "#173177"
                 }
     }
-    res = wm.send_template(user_id1, template_id2, JQ_data)
-    res = wm.send_template(user_id2, template_id2, JQ_data)
+    if debug = true
+        res = wm.send_template(user_id1, template_id2, JQ_data)
+    else:
+        res = wm.send_template(user_id1, template_id2, JQ_data)
+        res = wm.send_template(user_id2, template_id2, JQ_data)
     os.system("pause")
