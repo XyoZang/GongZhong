@@ -98,10 +98,10 @@ def case_shanbay():
     return word_en, word_ch
 
 def get_status(predictday):
-    if predictday <= today <= predictday + 7:
+    if predictday <= today <= predictday + datetime.timedelta(days=7)):
         JQstatus = "经期中"
         Corstatus = "#C70000"
-    elif predictday + 16 <= today <= predictday + 25:
+    elif predictday + datetime.timedelta(days=16)) <= today <= predictday + datetime.timedelta(days=25)):
         JQstatus = "排卵期"
         Corstatus = "#ECEC94"
     else:
