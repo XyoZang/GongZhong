@@ -261,7 +261,7 @@ if __name__ == "__main__":
         }    
     if now_status == '经期中':
         template_id = template_id2
-        End_day, Days_left = End_count(next_JQ)
+        End_day, Days_left = End_count(Next_JQ)
         JQ_data = {
             "Now_Status":{
                 "value": now_status,
