@@ -13,7 +13,7 @@ import sys
 import os
 
 # ************参数设置*************
-debug = True
+debug = False
 jq_last = 6
 JQ_last = jq_last - 1
 JQ_cycle = 30
