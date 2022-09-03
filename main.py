@@ -1,3 +1,4 @@
+from ast import While
 import datetime
 from datetime import date
 import math
@@ -13,24 +14,27 @@ import sys
 import os
 
 # **************************参数设置**********************
-debug = True
+debug = False
 # ************姨妈期持续时间*******
 jq_last = 6
-JQ_last = jq_last - 1
+JQ_LAST = jq_last - 1
 # ************姨妈周期************
-JQ_cycle = 30
+JQ_CYCLE = 30
+JQ_CYCLE_OMEGA = 1
 # 姨妈后几天到排卵期
-PL_pre = 10
+PL_PRE = 10
 # 排卵期持续时间
-PL_last = 9
+PL_LAST = 9
 
 # ************变量定义*************
 
 today = datetime.datetime.now()
+
 # 恋爱纪念日
 start_date = os.environ['START_DATE']
 province = os.environ['PROVINCE']
 city = os.environ['CITY']
+
 # 小宝的生日
 birthday = os.environ['BIRTHDAY']
 
@@ -46,17 +50,39 @@ template_id_aq = os.environ["TEMPLATE_ID_aq"]
 template_id_pl = os.environ["TEMPLATE_ID_pl"]
 template_id_jq = os.environ["TEMPLATE_ID_jq"]
 
-# last_JQ,上次姨妈来临时间
-last_JQ = os.environ['LAST_JQ']
-Last_JQ = datetime.datetime.strptime(last_JQ, "%Y-%m-%d")
+# FIRST_START,自记录起第一次姨妈来临时间
+first_start = '2022-07-23'
+FIRST_START = datetime.datetime.strptime(first_start, "%Y-%m-%d")
 
-# end_JQ,上次姨妈结束时间
-End_JQ = Last_JQ + datetime.timedelta(days=JQ_last)
-end_JQ = End_JQ.strftime("%Y-%m-%d")
+# FIRST_END,自记录起第一次姨妈结束时间
+FIRST_END = FIRST_START + datetime.timedelta(days=JQ_LAST)
+first_end = FIRST_END.strftime("%Y-%m-%d")
 
-# next_JQ,预计本次姨妈来临时间
-Next_JQ = End_JQ + datetime.timedelta(days=JQ_cycle)
-next_JQ = Next_JQ.strftime("%Y-%m-%d")
+# NEXT_start,预计本次姨妈来临时间
+NEXT_start = FIRST_END + datetime.timedelta(days=JQ_CYCLE)
+next_start = NEXT_start.strftime("%Y-%m-%d")
+
+NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST)
+next_end = NEXT_end.strftime("%Y-%m-%d")
+
+# 本次姨妈日期（姨妈中）/上次姨妈日期/下次姨妈日期的判断与计算
+def Date_JQ(NEXT_start, NEXT_end):
+    if FIRST_END < today < NEXT_start:
+        LAST_start = FIRST_START
+        LAST_end = FIRST_END
+        NEXT_start = LAST_start + datetime.timedelta(days=JQ_CYCLE)
+        NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST)
+    if today > NEXT_start:
+        LAST_start = NEXT_start
+        LAST_end = NEXT_end
+        NEXT_start = LAST_start+ datetime.timedelta(days=JQ_CYCLE)
+        NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST)
+        while (today > NEXT_start):
+            LAST_start = NEXT_start
+            LAST_end = NEXT_end
+            NEXT_start = LAST_start + datetime.timedelta(days=JQ_CYCLE)
+            NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST)
+    return LAST_start, LAST_end, NEXT_start, NEXT_end
 
 # ***************早安提醒*******************
 def get_weather(province, city):
@@ -103,31 +129,29 @@ def get_birthday():
   return (next - today).days + 1
 
 # 经期来临倒计时
-def JQ_count():
+def JQ_count(NEXT_start):
   # days_left，离经期还剩多少天
-  Days_left = Next_JQ - today
+  Days_left = NEXT_start - today
   return Days_left.days + 1
 
 # 经期结束倒计时
-def End_count(Next_JQ):
+def End_count(NEXT_end):
     # 本次姨妈期结束倒计时，end_day为本次姨妈结束时间
-    End_day = Next_JQ + datetime.timedelta(days=JQ_last)
-    Days_left = End_day -today
-    return End_day, Days_left.days + 2
+    Days_left = NEXT_end - today
+    return Days_left.days + 2
 
 # 排卵期计算
-def PL_count(Next_JQ):
+def PL_count(LAST_end):
     # end_day为本次姨妈结束时间，days_left为本次姨妈期倒计时，days_left在这里无用处
-    End_day, Days_left = End_count(Next_JQ)
     # 以本次姨妈结束日期和姨妈后排卵期来临时间来计算排卵期来临日期
-    PL_start = End_day + datetime.timedelta(days=PL_pre)
+    PL_start = LAST_end + datetime.timedelta(days=PL_PRE)
     # 排卵期来临日期加持续日期为排卵期结束日期
-    PL_end = PL_start + datetime.timedelta(days=PL_last)
+    PL_end = PL_start + datetime.timedelta(days=PL_LAST)
     return PL_start, PL_end
 
 # 排卵期来临与结束倒计时
-def PL_cng():
-    PL_start, PL_end = PL_count(Next_JQ)
+def PL_cng(LAST_end):
+    PL_start, PL_end = PL_count(LAST_end)
     PL_come =  PL_start - today
     PL_go = PL_end -today
     return PL_come.days, PL_go.days
@@ -154,11 +178,12 @@ def case_shanbay():
     return word_en, word_ch
 
 # 经期状态判断
-def get_status(Next_JQ):
-    # 仅用end_day
-    End_day, Days_left = End_count(Next_JQ)
-    PL_start, PL_end = PL_count(Next_JQ)
-    if Next_JQ <= today <= End_day:
+def get_status(NEXT_start, NEXT_end, LAST_end):
+    PL_start, PL_end = PL_count(LAST_end)
+    global THIS_START, THIS_END
+    if NEXT_start <= today <= NEXT_end:
+        THIS_START = NEXT_start
+        THIS_END = NEXT_end
         JQstatus = "经期中"
         Corstatus = "#C70000"
     elif PL_start <= today <= PL_end:
@@ -168,19 +193,6 @@ def get_status(Next_JQ):
         JQstatus = "安全期"
         Corstatus = "#66F970"
     return JQstatus, Corstatus
-
-# 本次姨妈日期（姨妈中）/上次姨妈日期/下次姨妈日期的判断与计算
-def Date_JQ(Next_JQ):
-    # 若今天还没到Next_JQ(下次姨妈日期)，则Next_JQ仍为Next_JQ
-    if today < Next_JQ:
-        Next_JQ = Next_JQ
-    # 若已经到姨妈期，则Next_JQ变为本次姨妈日期开始时间
-    if Next_JQ <= today <= Next_JQ + JQ_last:
-        start_JQ = Next_JQ
-    # 若姨妈期已过，则Next_JQ变为上次姨妈日期开始时间，且Next_JQ日期增加一个月经周期变为下次姨妈来临时间
-    if today > Next_JQ + JQ_last:
-        last_start = Next_JQ
-        Next_JQ = Next_JQ + JQ_cycle
 
 # ****************主程序-早安提醒******************
 if __name__ == "__main__":
@@ -240,10 +252,11 @@ if __name__ == "__main__":
 # *******************经期提醒***********************
 
     word_en, word_ch = case_shanbay()
-    now_status, color_status = get_status(Next_JQ)
-    PL_come, PL_go = PL_cng()
-    PL_start, PL_end = PL_count(Next_JQ)
-    End_day, Days_left = End_count(Next_JQ)
+    LAST_start_now, LAST_end_now, NEXT_start_now, NEXT_end_now = Date_JQ(NEXT_start, NEXT_end)
+    now_status, color_status = get_status(NEXT_start_now, NEXT_end_now, LAST_end_now)
+    PL_come, PL_go = PL_cng(LAST_end_now)
+    PL_start, PL_end = PL_count(LAST_end_now)
+    Days_left = End_count(NEXT_end_now)
     if now_status == '安全期':
         template_id = template_id_aq
         JQ_data = {
@@ -252,19 +265,19 @@ if __name__ == "__main__":
                 "color": color_status
                 },
             "last_JQ":{
-                "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(LAST_start_now.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
                 },
             "end_JQ":{
-                "value": "{}".format(End_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(LAST_end_now.strftime('%Y-%m-%d')),
                 "color": "#808A87"
                 },
             "next_JQ":{
-                "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
                 "color": "#FF6100",
                 },
             "days_left":{
-                "value": JQ_count(),
+                "value": JQ_count(NEXT_start_now),
                 "color": "#FF8000"
                 },
             "PL_start":{
@@ -288,19 +301,19 @@ if __name__ == "__main__":
                 "color": color_status
                 },
             "last_JQ":{
-                "value": "{}".format(Last_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(LAST_start_now.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
                 },
             "end_JQ":{
-                "value": "{}".format(End_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(LAST_end_now.strftime('%Y-%m-%d')),
                 "color": "#808A87"
                 },
             "next_JQ":{
-                "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
                 "color": "#FF6100",
                 },
             "days_left":{
-                "value": JQ_count(),
+                "value": JQ_count(NEXT_start_now),
                 "color": "#FF8000"
                 },
             "PL_end":{
@@ -324,11 +337,11 @@ if __name__ == "__main__":
                 "color": color_status
                 },
             "next_JQ":{
-                "value": "{}".format(Next_JQ.strftime('%Y-%m-%d')),
+                "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
                 "color": "#ED9121"
                 },
             "nextend_JQ":{
-                "value": "{}".format(End_day.strftime('%Y-%m-%d')),
+                "value": "{}".format(NEXT_end_now.strftime('%Y-%m-%d')),
                 "color": "#808A87"
                 },
             "days_left":{
@@ -349,4 +362,5 @@ if __name__ == "__main__":
     else:
         res = wm.send_template(user_id1, template_id, JQ_data)
         res = wm.send_template(user_id2, template_id, JQ_data)
+    print(res)
     os.system("pause")
