@@ -20,8 +20,8 @@ jq_last = 6
 JQ_LAST = jq_last - 1
 JQ_LAST_OMEGA = 0
 # ************姨妈周期************
-JQ_CYCLE = 30
-JQ_CYCLE_OMEGA = 4
+JQ_CYCLE = 35
+JQ_CYCLE_OMEGA = -1
 # 姨妈后几天到排卵期
 PL_PRE = 10
 # 排卵期持续时间
@@ -60,7 +60,7 @@ FIRST_END = FIRST_START + datetime.timedelta(days=JQ_LAST)
 first_end = FIRST_END.strftime("%Y-%m-%d")
 
 # NEXT_start,预计本次姨妈来临时间
-NEXT_start = FIRST_END + datetime.timedelta(days=JQ_CYCLE)
+NEXT_start = FIRST_START + datetime.timedelta(days=JQ_CYCLE)
 next_start = NEXT_start.strftime("%Y-%m-%d")
 
 NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST)
@@ -84,7 +84,7 @@ def Date_JQ(NEXT_start, NEXT_end):
             NEXT_start = LAST_start + datetime.timedelta(days=JQ_CYCLE)
             NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST)
         NEXT_start = NEXT_start + datetime.timedelta(days=JQ_CYCLE_OMEGA)
-        NEXT_end = NEXT_start + datetime.timedelta(days=JQ_LAST_OMEGA)
+        NEXT_end = NEXT_end + datetime.timedelta(days=JQ_LAST_OMEGA)
     return LAST_start, LAST_end, NEXT_start, NEXT_end
 
 # ***************早安提醒*******************
