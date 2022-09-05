@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+ 
 from ast import While
 import datetime
 from datetime import date
@@ -31,25 +33,39 @@ PL_LAST = 9
 
 today = datetime.datetime.now()
 
+start_date = '2020-11-14'
+province = '天津'
+city = '天津'
+birthday = '10-01'
+app_id = 'wx5ce3f89272cc2282'
+app_secret = '5f17e2de6d20c64204c0a3b53552d99d'
+user_id1 = 'o8xxF6JSERgFERmnVAKKsxRaiT_g'
+user_id2 = 'o8xxF6I7IEthBN2mezw_LMsfZyeE'
+template_id1 = 'g_PPReMVt1H1qP04io6JgSG8X1I50mxQZc2j7omNrkI'
+template_id_aq = 'wNHjxSXHY7jcS5_xSEYFbBZFrmFbYw68tToFXKvY1-Q'
+template_id_pl = 'j49jUIC6cUCEyz470AsT62_3moOAeM7BYyL1eW-3x6o'
+template_id_jq = 'bCfUNe82uaw3ZQ7ci-6m6fDlfyV7D_hqk8RUCn3k8k8'
+
 # 恋爱纪念日
-start_date = os.environ['START_DATE']
-province = os.environ['PROVINCE']
-city = os.environ['CITY']
+# start_date = os.environ['START_DATE']
+# province = os.environ['PROVINCE']
+# city = os.environ['CITY']
 
 # 小宝的生日
-birthday = os.environ['BIRTHDAY']
+# birthday = os.environ['BIRTHDAY']
 
 # 测试号Token
-app_id = os.environ["APP_ID"]
-app_secret = os.environ["APP_SECRET"]
+# app_id = os.environ["APP_ID"]
+# app_secret = os.environ["APP_SECRET"]
 
 # 用户ID与消息模板，id1为早安提醒
-user_id1 = os.environ["USER_ID1"]
-user_id2 = os.environ["USER_ID2"]
-template_id1 = os.environ["TEMPLATE_ID1"]
-template_id_aq = os.environ["TEMPLATE_ID_aq"]
-template_id_pl = os.environ["TEMPLATE_ID_pl"]
-template_id_jq = os.environ["TEMPLATE_ID_jq"]
+# user_id1 = os.environ["USER_ID1"]
+# user_id2 = os.environ["USER_ID2"]
+# template_id1 = os.environ["TEMPLATE_ID1"]
+# template_id_aq = os.environ["TEMPLATE_ID_aq"]
+# template_id_pl = os.environ["TEMPLATE_ID_pl"]
+# template_id_jq = os.environ["TEMPLATE_ID_jq"]
+
 
 # FIRST_START,自记录起第一次姨妈来临时间
 first_start = '2022-07-23'
