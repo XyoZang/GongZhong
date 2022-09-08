@@ -10,13 +10,14 @@ import requests
 import os
 import random
 from time import time, localtime
-import cityinfo
 from requests import get, post
 import sys
 import os
+import http.client, urllib
+import json
 
 # **************************参数设置**********************
-debug = False
+debug = True
 # ************姨妈期持续时间*******
 jq_last = 6
 JQ_LAST = jq_last - 1
@@ -34,17 +35,18 @@ PL_LAST = 9
 today = datetime.datetime.now()
 
 start_date = '2020-11-14'
-province = '天津'
-city = '天津'
+city = '西青区'
 birthday = '10-01'
 app_id = 'wx5ce3f89272cc2282'
 app_secret = '5f17e2de6d20c64204c0a3b53552d99d'
 user_id1 = 'o8xxF6JSERgFERmnVAKKsxRaiT_g'
 user_id2 = 'o8xxF6I7IEthBN2mezw_LMsfZyeE'
-template_id1 = 'g_PPReMVt1H1qP04io6JgSG8X1I50mxQZc2j7omNrkI'
-template_id_aq = 'wNHjxSXHY7jcS5_xSEYFbBZFrmFbYw68tToFXKvY1-Q'
-template_id_pl = 'j49jUIC6cUCEyz470AsT62_3moOAeM7BYyL1eW-3x6o'
-template_id_jq = 'bCfUNe82uaw3ZQ7ci-6m6fDlfyV7D_hqk8RUCn3k8k8'
+template_id1 = 'CcOtAUWSHMkGA7_or2F6yDEGWjK-Z_Sw-HrgDVaf4PY'
+template_id_aq = 'XKGDzS55Uxx0kLeBt7kSmvDuB78SrBL3TgPtRA_6fIQ'
+template_id_pl = 'dRuAtLAI2KFRRWVYJ5jj6x7BRf0ipLy5qbQ3gAsuQ60'
+template_id_jq = 't9RPYCzYcgEF7O_ETZHz65K1yz4E1xohOVa4ynz5UXk'
+template_id_wan = '_6xW1solFvsRTZm20mZ7rK5ep9o_mMVKn27mk6Wa_d0'
+template_id_word = '95e_SbNmk945YHn2nFzk1qy3LsRVw_pmW7WtmPv7O_A'
 
 # 恋爱纪念日
 # start_date = os.environ['START_DATE']
@@ -104,36 +106,60 @@ def Date_JQ(NEXT_start, NEXT_end):
     return LAST_start, LAST_end, NEXT_start, NEXT_end
 
 # ***************早安提醒*******************
-def get_weather(province, city):
-    # 城市id
-    try:
-        city_id = cityinfo.cityInfo[province][city]["AREAID"]
-    except KeyError:
-        print("推送消息失败，请检查省份或城市是否正确")
-        os.system("pause")
-        sys.exit(1)
-    # city_id = 101280101
-    # 毫秒级时间戳
-    t = (int(round(time() * 1000)))
-    headers = {
-      "Referer": "http://www.weather.com.cn/weather1d/{}.shtml".format(city_id),
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                    'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
-    }
-    url = "http://d1.weather.com.cn/dingzhi/{}.html?_={}".format(city_id, t)
-    response = get(url, headers=headers)
-    response.encoding = "utf-8"
-    response_data = response.text.split(";")[0].split("=")[-1]
-    response_json = eval(response_data)
-    # print(response_json)
-    weatherinfo = response_json["weatherinfo"]
-    # 天气
-    weather = weatherinfo["weather"]
-    # 最高气温
-    temp = weatherinfo["temp"]
-    # 最低气温
-    tempn = weatherinfo["tempn"]
-    return weather, temp, tempn
+def get_weather(city):
+    conn = http.client.HTTPSConnection('api.tianapi.com')  #接口域名
+    params = urllib.parse.urlencode({'key':'6a350d344f255cb49085462f2e173d19','city': city})
+    headers = {'Content-type':'application/x-www-form-urlencoded'}
+    conn.request('POST','/tianqi/index',params,headers)
+    res = conn.getresponse()
+    data = res.read()
+    data = data.decode('utf-8')
+    info = json.loads(data)
+    week = info['newslist'][0]['week']
+    nowtem = info['newslist'][0]['real']
+    weather1 = info['newslist'][0]['weather']
+    lowtem1 = info['newslist'][0]['lowest']
+    hightem1 = info['newslist'][0]['highest']
+    wind1 = info['newslist'][0]['windsc']
+    rain1 = info['newslist'][0]['pop']
+    weather2 = info['newslist'][1]['weather']
+    lowtem2 = info['newslist'][1]['lowest']
+    hightem2 = info['newslist'][1]['highest']
+    wind2 = info['newslist'][1]['windsc']
+    rain2 = info['newslist'][1]['pop']
+    tips = info['newslist'][0]['tips']
+    return week, tips, nowtem, weather1, weather2, lowtem1, lowtem2, hightem1, hightem2, wind1, wind2, rain1, rain2
+
+def get_health():
+    conn = http.client.HTTPSConnection('api.tianapi.com')  #接口域名
+    params = urllib.parse.urlencode({'key':'6a350d344f255cb49085462f2e173d19'})
+    headers = {'Content-type':'application/x-www-form-urlencoded'}
+    conn.request('POST','/healthtip/index',params,headers)
+    res = conn.getresponse()
+    data = res.read()
+    data = data.decode('utf-8')
+    info = json.loads(data)
+    health = info['newslist'][0]['content']
+    return health
+
+def get_air():
+    conn = http.client.HTTPSConnection('api.tianapi.com')  #接口域名
+    params = urllib.parse.urlencode({'key':'6a350d344f255cb49085462f2e173d19','area':city})
+    headers = {'Content-type':'application/x-www-form-urlencoded'}
+    conn.request('POST','/aqi/index',params,headers)
+    res = conn.getresponse()
+    data = res.read()
+    data = data.decode('utf-8')
+    info = json.loads(data)
+    air = info['newslist'][0]['quality']
+    return air
+
+def get_wan():
+    url = 'https://api.mcloc.cn/love?type=json'
+    r = requests.get(url)
+    response = r.json()
+    word = response['data']
+    return word
 
 # 恋爱时长计算
 def get_count():
@@ -216,170 +242,276 @@ def get_status(NEXT_start, NEXT_end, LAST_end):
 # ****************主程序-早安提醒******************
 if __name__ == "__main__":
 
+    now = str(today.hour)
+    now = int(now)
+    air = get_air()
     client = WeChatClient(app_id, app_secret)
-
     wm = WeChatMessage(client)
-    wea, temp, tempn = get_weather(province, city)
-    week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
-    week = week_list[today.isoweekday() % 7]
+    week, tips, nowtem, weather1, weather2, lowtem1, lowtem2, hightem1, hightem2, wind1, wind2, rain1, rain2 = get_weather(city)
     note_ch, note_en = get_ciba()
-    morning_data = {
-            "date": {
+    word_en, word_ch = case_shanbay()
+    health = get_health()
+    if now < 12:
+        morning_data = {
+                "date": {
                     "value": "{} {}".format(today.strftime('%Y-%m-%d'), week),
                     "color": "#00FFFF"
                     },
-            "city": {
+                "city": {
                     "value": city,
                     "color": "#808A87"
-                },
-            "weather": {
-                    "value": wea,
+                    },
+                "weather": {
+                    "value": weather1,
                     "color": "#ED9121"
-                },
-            "min_temperature": {
-                    "value": tempn,
+                    },
+                "now_temperature": {
+                    "value": nowtem,
+                    "color": "#ED9121"
+                    },    
+                "min_temperature": {
+                    "value": lowtem1,
                     "color": "#00FF00"
+                    },
+                "max_temperature": {
+                    "value": hightem1,
+                    "color": "#FF6100"
                 },
-            "max_temperature": {
-                  "value": temp,
-                  "color": "#FF6100"
+                "wind": {
+                    "value": wind1,
+                    "color": "#4682B4"
                 },
-            "love_day": {
-                  "value": get_count(),
-                  "color": "#87CEEB"
+                "rain": {
+                    "value": rain1,
+                    "color": "#1E90FF"
                 },
-            "birthday": {
-                  "value": get_birthday(),
-                  "color": "#FF8000"
+                "air": {
+                    "value": air,
+                    "color": "#00CED1"
                 },
-            "note_en": {
+                "tips": {
+                    "value": tips,
+                    "color": "#F4A460"
+                },
+                "love_day": {
+                    "value": get_count(),
+                    "color": "#87CEEB"
+                },
+                "birthday": {
+                    "value": get_birthday(),
+                    "color": "#FF8000"
+                },
+                "note_en": {
                     "value": note_en,
                     "color": "#173177"
                 },
-            "note_ch": {
+                "note_ch": {
                     "value": note_ch,
                     "color": "#173177"
                 },
             }
-    if debug == True:
-        res = wm.send_template(user_id1, template_id1, morning_data)
-    else:
-        res = wm.send_template(user_id1, template_id1, morning_data)
-        res = wm.send_template(user_id2, template_id1, morning_data)
-    print(res)
+        if debug == True:
+            res = wm.send_template(user_id1, template_id1, morning_data)
+        else:
+            res = wm.send_template(user_id1, template_id1, morning_data)
+            res = wm.send_template(user_id2, template_id1, morning_data)
+        print(res)
 
-# *******************经期提醒***********************
+    # *******************经期提醒***********************
+        LAST_start_now, LAST_end_now, NEXT_start_now, NEXT_end_now = Date_JQ(NEXT_start, NEXT_end)
+        now_status, color_status = get_status(NEXT_start_now, NEXT_end_now, LAST_end_now)
+        PL_come, PL_go = PL_cng(LAST_end_now)
+        PL_start, PL_end = PL_count(LAST_end_now)
+        Days_left = End_count(NEXT_end_now)
+        if now_status == '安全期':
+            template_id = template_id_aq
+            JQ_data = {
+                "Now_Status":{
+                    "value": now_status,
+                    "color": color_status
+                    },
+                "last_JQ":{
+                    "value": "{}".format(LAST_start_now.strftime('%Y-%m-%d')),
+                    "color": "#ED9121"
+                    },
+                "end_JQ":{
+                    "value": "{}".format(LAST_end_now.strftime('%Y-%m-%d')),
+                    "color": "#808A87"
+                    },
+                "next_JQ":{
+                    "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
+                    "color": "#FF6100",
+                    },
+                "days_left":{
+                    "value": JQ_count(NEXT_start_now),
+                    "color": "#FF8000"
+                    },
+                "PL_start":{
+                    "value": PL_come,
+                    "color": "#FF8000"
+                    },
+                "health": {
+                    "value": health,
+                    "color": "#BC8F8F"
+                },
+                "word_en":{
+                    "value": word_en,
+                    "color": "#173177"
+                    },
+                "word_ch":{
+                    "value": word_ch,
+                    "color": "#173177"
+                    }
+            }
+        if now_status == '排卵期':
+            template_id = template_id_pl
+            JQ_data = {
+                "Now_Status":{
+                    "value": now_status,
+                    "color": color_status
+                    },
+                "last_JQ":{
+                    "value": "{}".format(LAST_start_now.strftime('%Y-%m-%d')),
+                    "color": "#ED9121"
+                    },
+                "end_JQ":{
+                    "value": "{}".format(LAST_end_now.strftime('%Y-%m-%d')),
+                    "color": "#808A87"
+                    },
+                "next_JQ":{
+                    "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
+                    "color": "#FF6100",
+                    },
+                "days_left":{
+                    "value": JQ_count(NEXT_start_now),
+                    "color": "#FF8000"
+                    },
+                "PL_end":{
+                    "value": PL_go,
+                    "color": "#FF8000"
+                    },
+                "health": {
+                    "value": health,
+                    "color": "#BC8F8F"
+                },
+                "word_en":{
+                    "value": word_en,
+                    "color": "#173177"
+                    },
+                "word_ch":{
+                    "value": word_ch,
+                    "color": "#173177"
+                    }
+            }    
+        if now_status == '经期中':
+            template_id = template_id_jq
+            JQ_data = {
+                "Now_Status":{
+                    "value": now_status,
+                    "color": color_status
+                    },
+                "next_JQ":{
+                    "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
+                    "color": "#ED9121"
+                    },
+                "nextend_JQ":{
+                    "value": "{}".format(NEXT_end_now.strftime('%Y-%m-%d')),
+                    "color": "#808A87"
+                    },
+                "days_left":{
+                    "value": Days_left,
+                    "color": "#FF8000"
+                    },
+                "health": {
+                    "value": health,
+                    "color": "#BC8F8F"
+                },
+                "word_en":{
+                    "value": word_en,
+                    "color": "#173177"
+                    },
+                "word_ch":{
+                    "value": word_ch,
+                    "color": "#173177"
+                }
+            }
+        if debug == True:
+            res = wm.send_template(user_id1, template_id, JQ_data)
+        else:
+            res = wm.send_template(user_id1, template_id, JQ_data)
+            res = wm.send_template(user_id2, template_id, JQ_data)
+        print(res)
 
-    word_en, word_ch = case_shanbay()
-    LAST_start_now, LAST_end_now, NEXT_start_now, NEXT_end_now = Date_JQ(NEXT_start, NEXT_end)
-    now_status, color_status = get_status(NEXT_start_now, NEXT_end_now, LAST_end_now)
-    PL_come, PL_go = PL_cng(LAST_end_now)
-    PL_start, PL_end = PL_count(LAST_end_now)
-    Days_left = End_count(NEXT_end_now)
-    if now_status == '安全期':
-        template_id = template_id_aq
-        JQ_data = {
-            "Now_Status":{
-                "value": now_status,
-                "color": color_status
+    # ******************明日天气提醒***********
+    if now > 13:
+        word = get_wan()
+        tommorow = today + datetime.timedelta(days=1)
+        week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        week = week_list[tommorow.isoweekday() % 7]
+        wan_data = {
+                "date": {
+                    "value": "{} {}".format(tommorow.strftime('%Y-%m-%d'), week),
+                    "color": "#00FFFF"
+                    },
+                "city": {
+                    "value": city,
+                    "color": "#808A87"
+                    },
+                "weather": {
+                    "value": weather2,
+                    "color": "#ED9121"
+                    },
+                "now_temperature": {
+                    "value": nowtem,
+                    "color": "#ED9121"
+                    },    
+                "min_temperature": {
+                    "value": lowtem2,
+                    "color": "#00FF00"
+                    },
+                "max_temperature": {
+                    "value": hightem2,
+                    "color": "#FF6100"
                 },
-            "last_JQ":{
-                "value": "{}".format(LAST_start_now.strftime('%Y-%m-%d')),
-                "color": "#ED9121"
+                "wind": {
+                    "value": wind2,
+                    "color": "#4682B4"
                 },
-            "end_JQ":{
-                "value": "{}".format(LAST_end_now.strftime('%Y-%m-%d')),
-                "color": "#808A87"
+                "rain": {
+                    "value": rain2,
+                    "color": "#1E90FF"
                 },
-            "next_JQ":{
-                "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
-                "color": "#FF6100",
+                "air": {
+                    "value": air,
+                    "color": "#00CED1"
                 },
-            "days_left":{
-                "value": JQ_count(NEXT_start_now),
-                "color": "#FF8000"
+                "tips": {
+                    "value": tips,
+                    "color": "#F4A460"
                 },
-            "PL_start":{
-                "value": PL_come,
-                "color": "#FF8000"
+                "note_en": {
+                    "value": note_en,
+                    "color": "#173177"
                 },
-            "word_en":{
-                "value": word_en,
-                "color": "#173177"
+                "note_ch": {
+                    "value": note_ch,
+                    "color": "#173177"
                 },
-            "word_ch":{
-                "value": word_ch,
-                "color": "#173177"
-                }
+            }
+        word_data = {
+                "words": {
+                    "value": word,
+                    "color": "#000080"
+                },
         }
-    if now_status == '排卵期':
-        template_id = template_id_pl
-        JQ_data = {
-            "Now_Status":{
-                "value": now_status,
-                "color": color_status
-                },
-            "last_JQ":{
-                "value": "{}".format(LAST_start_now.strftime('%Y-%m-%d')),
-                "color": "#ED9121"
-                },
-            "end_JQ":{
-                "value": "{}".format(LAST_end_now.strftime('%Y-%m-%d')),
-                "color": "#808A87"
-                },
-            "next_JQ":{
-                "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
-                "color": "#FF6100",
-                },
-            "days_left":{
-                "value": JQ_count(NEXT_start_now),
-                "color": "#FF8000"
-                },
-            "PL_end":{
-                "value": PL_go,
-                "color": "#FF8000"
-                },
-            "word_en":{
-                "value": word_en,
-                "color": "#173177"
-                },
-            "word_ch":{
-                "value": word_ch,
-                "color": "#173177"
-                }
-        }    
-    if now_status == '经期中':
-        template_id = template_id_jq
-        JQ_data = {
-            "Now_Status":{
-                "value": now_status,
-                "color": color_status
-                },
-            "next_JQ":{
-                "value": "{}".format(NEXT_start_now.strftime('%Y-%m-%d')),
-                "color": "#ED9121"
-                },
-            "nextend_JQ":{
-                "value": "{}".format(NEXT_end_now.strftime('%Y-%m-%d')),
-                "color": "#808A87"
-                },
-            "days_left":{
-                "value": Days_left,
-                "color": "#FF8000"
-                },
-            "word_en":{
-                "value": word_en,
-                "color": "#173177"
-                },
-            "word_ch":{
-                "value": word_ch,
-                "color": "#173177"
-                }
-        }
-    if debug == True:
-        res = wm.send_template(user_id1, template_id, JQ_data)
-    else:
-        res = wm.send_template(user_id1, template_id, JQ_data)
-        res = wm.send_template(user_id2, template_id, JQ_data)
-    print(res)
-    os.system("pause")
+        if debug == True:
+            res = wm.send_template(user_id1, template_id_wan, wan_data)
+            print(res)
+            res = wm.send_template(user_id1, template_id_word, word_data)
+            print(res)
+        else:
+            res = wm.send_template(user_id1, template_id_wan, wan_data)
+            res = wm.send_template(user_id1, template_id_word, word_data)
+            res = wm.send_template(user_id2, template_id_wan, wan_data)
+            res = wm.send_template(user_id2, template_id_word, word_data)
+        os.system("pause")
